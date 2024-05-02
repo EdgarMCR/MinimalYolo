@@ -15,6 +15,7 @@ from keras_cv import visualization
 import generate_synthetic_data as gsd
 import script_utility as su
 
+
 class EvaluateCOCOMetricsCallback(keras.callbacks.Callback):
     """
     ## COCO Metric Callback
