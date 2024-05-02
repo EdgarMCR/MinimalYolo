@@ -1,9 +1,14 @@
 import pickle
+import logging
 from pathlib import Path
 
+from tqdm import tqdm
 from PIL import Image
 
 import numpy as np
+
+
+PICKLE_FILE_NAME = 'synthetic_data.pickle'
 
 
 def draw_box(img: np.ndarray, box_width_min_max: tuple, box_color: tuple = (255, 255, 255)):
@@ -64,14 +69,16 @@ def generate_synthetic_data_and_save(out_folder: Path, n: int, height: int, widt
                                      size_range: tuple = (10, 40)):
     """ Save the synthetic data to disk (as this simulates usual datasets). """
     results = []
-    for idx, (img, classes, bbox) in enumerate(generate_synthetic_data(n, height, width, max_number, size_range)):
+    logging.info(f"Generating {n} synthetic data images ({width}x{height}) with up to {max_number} objects.")
+    generator = generate_synthetic_data(n, height, width, max_number, size_range)
+    for idx, (img, classes, bbox) in tqdm(enumerate(generator), total=n):
         img_path = out_folder / f"synthetic_data_{idx}.jpg"
         im = Image.fromarray(img)
         im.save(img_path)
 
         results.append((img_path, classes, bbox))
 
-    with open(out_folder / 'synthetic_data.pickle', 'wb') as f:
+    with open(out_folder / PICKLE_FILE_NAME, 'wb') as f:
         pickle.dump(results, f)
     return results
 

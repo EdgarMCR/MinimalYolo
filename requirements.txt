@@ -1,4 +1,8 @@
 numpy==1.26.4
-keras-cv==0.9.0
+keras-cv==0.9.0  # Keras-CV should be installed before Keras
 tensorflow[and-cuda]==2.16.1
 keras==3.3.3
+
+# For synthetic data generation
+pillow==10.3.0
+tqdm==4.66.2

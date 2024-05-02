@@ -1,4 +1,6 @@
+
 import pickle
+import logging
 from pathlib import Path
 from typing import List, Tuple
 
@@ -10,6 +12,8 @@ import keras_cv.models
 from keras_cv import bounding_box
 from keras_cv import visualization
 
+import generate_synthetic_data as gsd
+import script_utility as su
 
 class EvaluateCOCOMetricsCallback(keras.callbacks.Callback):
     """
@@ -47,13 +51,6 @@ class EvaluateCOCOMetricsCallback(keras.callbacks.Callback):
             self.model.save(self.save_path)  # Save the model when mAP improves
 
         return logs
-
-
-def load_data_set() -> List[Tuple[Path, List, List]]:
-    out_folder = Path(r'/mnt/data/kirintec/synth_data')
-    with open(out_folder / 'synthetic_data.pickle', 'rb') as f:
-        results = pickle.load(f)
-    return results
 
 
 def minimal_inference_examples():
@@ -196,8 +193,27 @@ def train_yolo(data_lst: List[Tuple[Path, List, List]]):
     )
 
 
+def maybe_create_data() -> List[Tuple[Path, List, List]]:
+    out_folder = Path.home() / 'minimal_yolo_synth_data'
+    if not out_folder.exists():
+        out_folder.mkdir()
+
+    pickle_path = out_folder / gsd.PICKLE_FILE_NAME
+
+    if not pickle_path.exists():
+        data = gsd.generate_synthetic_data_and_save(out_folder, 10000, 224, 224, 3,
+                                                       (10, 40))
+    else:
+        with open(out_folder / gsd.PICKLE_FILE_NAME, 'rb') as f:
+            data = pickle.load(f)
+
+    return data
+
+
+@su.print_runtime
 def main():
-    data = load_data_set()
+    su.set_logging()
+    data = maybe_create_data()
     train_yolo(data)
 
 
