@@ -1,7 +1,8 @@
-numpy==1.24.3
+--extra-index-url https://pypi.nvidia.com
+tensorrt-libs==8.6.1
+tensorflow[and-cuda]==2.15.0
+keras==2.15.0
 keras-cv==0.9.0
-tensorflow==2.13.*
-keras==2.13.1
 
 # For synthetic data generation
 pillow==10.3.0

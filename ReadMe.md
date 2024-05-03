@@ -2,10 +2,45 @@
 # Installation
 In order to use the GPU, follow these steps.
 
-Worked with Ubuntu 22.04, Python 3.11.9, Nvidia Driver Version: 535.171.04, CUDA Version: 12.2 (although we will 
-install 11.8 in the environment.)
+Worked with Ubuntu 22.04, Python 3.11.9, Nvidia Driver Version: 535.171.04, CUDA Version: 12.2 
 
-Inside a  conda environment () otherwise it won't find the variables specifying the cuda and cdnn paths!)
+## CUDA + Pip Way
+On Ubuntu, install CUDA 12.2 and CUDNN 8.9:
+```bash
+sudo apt install cuda-12-2 libcudnn8=8.9.7.29-1+cuda12.2
+```
+Inside the venv
+```bash
+pip install -r requirements.txt
+```
+
+
+Confirm that this works with:
+```bash
+python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+```
+
+### Troubleshooting
+CUDA 12.2 should be set as your chosen CUDA in Ubuntu - check this thus:
+```
+update-alternatives --display cuda
+```
+
+If not, use `update-alternatives --config cuda` to set it thus.
+If you have path issues, check the following is in your shell's rc:
+```
+export PATH=/usr/local/cuda/bin:${PATH}
+export CUDNN_PATH=/usr/lib/x86_64-linux-gnu/
+export CUDA_HOME=/usr/local/cuda
+export LD_LIBRARY_PATH=$CUDNN_PATH:$CUDA_HOME/lib64:${LD_LIBRARY_PATH}
+```
+
+## Anaconda Way
+** This didn't completly work on my machine but it might work for you. **
+
+Installing 11.8 in the environment.
+
+Inside a  conda environment ( otherwise it won't find the variables specifying the cuda and cdnn paths!)
 ```bash
 conda install -c conda-forge cudatoolkit=11.8.0
 python3 -m pip install nvidia-cudnn-cu11==8.8.1.3 tensorflow==2.13.*

@@ -106,14 +106,13 @@ def visualize_dataset(inputs, value_range, rows, cols, bounding_box_format, clas
 
 def train_yolo(data_lst: List[Tuple[Path, List, List]]):
     SPLIT_RATIO = 0.2
-    BATCH_SIZE = 4
+    BATCH_SIZE = 2
     LEARNING_RATE = 0.001
     EPOCH = 5
     GLOBAL_CLIPNORM = 10.0
 
     class_ids = ["square", "circle"]
     class_mapping = dict(zip(range(len(class_ids)), class_ids))
-
 
     image_paths = [str(x[0]) for x in data_lst]
     classes = [x[1] for x in data_lst]
@@ -166,7 +165,7 @@ def train_yolo(data_lst: List[Tuple[Path, List, List]]):
     val_ds = val_data.map(load_dataset, num_parallel_calls=tf.data.AUTOTUNE)
     val_ds = val_ds.shuffle(BATCH_SIZE * 4)
     val_ds = val_ds.ragged_batch(BATCH_SIZE, drop_remainder=True)
-    # val_ds = val_ds.map(resizing, num_parallel_calls=tf.data.AUTOTUNE)
+    val_ds = val_ds.map(resizing, num_parallel_calls=tf.data.AUTOTUNE)
 
     backbone = keras_cv.models.YOLOV8Backbone.from_preset(
         "yolo_v8_s_backbone_coco"  # We will use yolov8 small backbone with coco weights
@@ -202,7 +201,7 @@ def maybe_create_data() -> List[Tuple[Path, List, List]]:
     pickle_path = out_folder / gsd.PICKLE_FILE_NAME
 
     if not pickle_path.exists():
-        data = gsd.generate_synthetic_data_and_save(out_folder, 10000, 224, 224, 3,
+        data = gsd.generate_synthetic_data_and_save(out_folder, 100, 224, 224, 3,
                                                        (10, 40))
     else:
         with open(out_folder / gsd.PICKLE_FILE_NAME, 'rb') as f:
