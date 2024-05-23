@@ -39,7 +39,7 @@ class EvaluateCOCOMetricsCallback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs):
         self.metrics.reset_state()
         for batch in self.data:
-            images, y_true = batch[0], batch[1]
+            images, y_true = batch['images'], batch['bounding_boxes']
             y_pred = self.model.predict(images, verbose=0)
             self.metrics.update_state(y_true, y_pred)
 
@@ -185,11 +185,12 @@ def train_yolo(data_lst: List[Tuple[Path, List, List]]):
 
     yolo.compile(optimizer=optimizer, classification_loss="binary_crossentropy", box_loss="ciou")
 
+    eval_callback = EvaluateCOCOMetricsCallback(val_ds, "model.h5")
     yolo.fit(
         train_ds,
         validation_data=val_ds,
         epochs=3,
-        callbacks=[EvaluateCOCOMetricsCallback(val_ds, "model.h5")],
+        callbacks=[eval_callback],
     )
 
 
